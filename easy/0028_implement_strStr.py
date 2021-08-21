@@ -1,9 +1,9 @@
 class Solution:
     def strStr(self, haystack: str, needle: str) -> int:
-        if needle == '':
+        if needle == '' or haystack == needle:
             return 0
         idx = -1
-        for i in (0, len(haystack) - len(needle)):
+        for i in range(0, len(haystack) - len(needle)+1):
             temp_i = i
             flag = True
             for char in needle:
@@ -15,3 +15,6 @@ class Solution:
             if flag:
                 return i
         return idx
+
+
+Solution().strStr(haystack="abc", needle="bc")
