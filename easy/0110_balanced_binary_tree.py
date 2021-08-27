@@ -10,6 +10,22 @@ class TreeNode:
 
 
 class Solution:
-    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+    def dfsHeight(self, root: Optional[TreeNode]) -> int:
         if not root:
-            return True
+            return 0
+
+        leftHeight = self.dfsHeight(root.left)
+        if leftHeight == -1:
+            return -1
+
+        rightHeight = self.dfsHeight(root.right)
+        if rightHeight == -1:
+            return -1
+
+        if abs(leftHeight - rightHeight) > 1:
+            return -1
+
+        return max(leftHeight, rightHeight) + 1
+
+    def isBalanced(self, root: Optional[TreeNode]) -> bool:
+        return self.dfsHeight(root) != -1
