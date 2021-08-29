@@ -2,24 +2,17 @@ from typing import List
 
 
 class Solution:
+    # Time O(n^2)
+    # def maxProfit(self, prices: List[int]) -> int:
+    #     result = 0
+    #     for i in range(len(prices)):
+    #         for j in range(i+1, len(prices)):
+    #             result = max(result, prices[j] - prices[i])
+    #     return result
+
     def maxProfit(self, prices: List[int]) -> int:
-        i = buyIdx = 0
-        j = sellIdx = len(prices) - 1
-        buyPrice = prices[buyIdx]
-        sellPrice = prices[sellIdx]
-        while i < sellIdx or j > buyIdx:
-            if prices[i] < buyPrice:
-                buyPrice = prices[i]
-                buyIdx = i
-            if j > buyIdx:
-                j -= 1
-            if prices[j] > sellPrice:
-                sellPrice = prices[j]
-                sellIdx = j
-            if i < sellIdx:
-                i += 1
-        return max(sellPrice - buyPrice, 0)
-
-
-Solution().maxProfit(
-    [2, 1, 2, 1, 0, 0, 1])
+        maxCur = maxSoFar = 0
+        for i in range(1, len(prices)):
+            maxCur = max(0, prices[i] - prices[i-1] + maxCur)
+            maxSoFar = max(maxSoFar, maxCur)
+        return maxSoFar
