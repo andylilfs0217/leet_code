@@ -3,6 +3,8 @@ from typing import List
 
 class Solution:
     def summaryRanges(self, nums: List[int]) -> List[str]:
+        if not nums:
+            return []
         ans = []
         minIdx = maxIdx = 0
         for i in range(1, len(nums)):
@@ -21,6 +23,3 @@ class Solution:
             ans.append(f'{nums[minIdx]}->{nums[maxIdx]}')
 
         return ans
-
-
-Solution().summaryRanges()
