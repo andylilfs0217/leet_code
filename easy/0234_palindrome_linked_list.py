@@ -10,9 +10,25 @@ class ListNode:
 
 class Solution:
     def isPalindrome(self, head: Optional[ListNode]) -> bool:
-        pass
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+        rightHead = self.reverseNodes(slow)
+        while head and rightHead:
+            if head.val != rightHead.val:
+                return False
+            head = head.next
+            rightHead = rightHead.next
+        return True
 
     def reverseNodes(self, node: ListNode) -> ListNode:
         prev = None
-        node, node.next, prev = node.next, prev, node
-        return node
+        while node:
+            # nodeNext = node.next
+            # node.next = prev
+            # prev = node
+            # node = nodeNext
+
+            node.next, prev, node = prev, node, node.next
+        return prev
