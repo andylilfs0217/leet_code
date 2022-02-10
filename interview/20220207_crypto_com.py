@@ -12,7 +12,8 @@ import unittest
 class Solution:
     def checkTwoStringPalindrome(self, a: str, b: str) -> bool:
         # return self.checkTwoStringPalindrome1(a, b)
-        return self.checkTwoStringPalindrome2(a, b)
+        # return self.checkTwoStringPalindrome2(a, b)
+        return self.checkTwoStringPalindrome3(a, b)
 
     # O(n^2) time, O(n) space
     def checkTwoStringPalindrome1(self, a: str, b: str) -> bool:
@@ -37,6 +38,17 @@ class Solution:
         mid_part = a[l+1:r] if a[l+1] == a[r-1] else b[l+1:r]
         new1, new2 = a[:l+1]+mid_part+b[r:], b[:l+1]+mid_part+a[r:]
         return self.checkPalindrome(new1) or self.checkPalindrome(new2)
+
+    # O(n) time, O(1) space
+    def checkTwoStringPalindrome3(self, a: str, b: str) -> bool:
+        n = len(a)
+        l, r = n//2 - 1, n//2 if n % 2 == 0 else n//2 + 1
+        while l >= 0 and r < n:
+            if a[l] != a[r] and b[l] != b[r] and a[l] != b[r] and b[l] != a[r]:
+                return False
+            l -= 1
+            r += 1
+        return True
 
     def checkPalindrome(self, s: str) -> bool:
         return s == s[::-1]
