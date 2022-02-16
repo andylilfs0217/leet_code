@@ -1,17 +1,18 @@
+from math import sqrt
+
+
 class Solution:
     def countPrimes(self, n: int) -> int:
-        if n < 2:
+        if n == 0 or n == 1:
             return 0
-        isPrime = [1] * (n + 1)
-        isPrime[0] = isPrime[1] = 0
-        ans = 0
-        for i in range(2, n + 1):
-            if isPrime[i] == 1:
-                ans += 1
-                for j in range(i*2, n + 1, i):
-                    isPrime[j] = 0
-
-        return ans
-
-
-Solution().countPrimes(10)
+        isPrime = [True] * n
+        isPrime[0] = isPrime[1] = False
+        count = 0
+        for i in range(2, int(sqrt(n))+1):
+            if isPrime[i]:
+                for j in range(i**2, n, i):
+                    isPrime[j] = False
+        for i in range(2, n):
+            if isPrime[i]:
+                count += 1
+        return count
