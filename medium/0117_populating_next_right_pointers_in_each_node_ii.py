@@ -19,11 +19,15 @@ class Node:
 
 class Solution:
     def connect(self, root: 'Node') -> 'Node':
-        if not root:
-            return root
-        prev_layer = [root]
+        prev_layer = [root] if root else []
         curr_layer = []
         while len(prev_layer) > 0 or len(curr_layer) > 0:
             while len(prev_layer) > 0:
                 curr_root = prev_layer.pop(0)
-                # TODO
+                curr_root.next = prev_layer[0] if len(prev_layer) > 0 else None
+                if curr_root.left:
+                    curr_layer.append(curr_root.left)
+                if curr_root.right:
+                    curr_layer.append(curr_root.right)
+            prev_layer, curr_layer = curr_layer, prev_layer
+        return root
