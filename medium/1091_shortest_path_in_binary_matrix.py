@@ -38,6 +38,7 @@ class Solution:
         return -1
 
     # A* search
+    # TODO
     def shortestPathBinaryMatrix2(self, grid: List[List[int]]) -> int:
         def checkOutOfRange(i: int, j: int, n: int) -> bool:
             return i < 0 or j < 0 or i >= n or j >= n
