@@ -1,3 +1,4 @@
+import heapq
 import math
 from typing import List
 
@@ -38,10 +39,12 @@ class Solution:
         return -1
 
     # A* search
-    # TODO
     def shortestPathBinaryMatrix2(self, grid: List[List[int]]) -> int:
-        def checkOutOfRange(i: int, j: int, n: int) -> bool:
+        def checkOutOfRange(i: int, j: int) -> bool:
             return i < 0 or j < 0 or i >= n or j >= n
+
+        def calHeuristics(i: int, j: int) -> int:
+            return max(n-1-i, n-1-j)
         directions = (
             (-1, 0),    # N
             (-1, 1),    # NE
@@ -55,17 +58,23 @@ class Solution:
         n = len(grid)
         if grid[0][0] == 1 or grid[-1][-1] == 1:
             return -1
-        pqueue = []
+        pqueue = [(calHeuristics(0, 0), 0, 0, 0)]
+        while pqueue:
+            _, w, i, j = heapq.heappop(pqueue)
+            w += 1
+            if i == n-1 and j == n-1:
+                return w
+            if grid[i][j] == 0 or grid[i][j] > w:
+                grid[i][j] = w
+                for x, y in directions:
+                    a, b = i+x, j+y
+                    if not checkOutOfRange(a, b) and grid[a][b] == 0:
+                        heapq.heappush(
+                            pqueue, (calHeuristics(a, b)+w, w, a, b))
         return -1
 
 
-print(Solution().shortestPathBinaryMatrix([
-    [0, 0, 0, 1, 0, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 0, 1, 1, 0, 1, 0],
-    [0, 1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 1, 1, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0],
-    [1, 1, 0, 0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 1, 0, 0]
-]))
+print(Solution().shortestPathBinaryMatrix(
+    [[0, 0, 0, 0, 1, 1, 1, 1, 0], [0, 1, 1, 0, 0, 0, 0, 1, 0], [0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 0, 0, 1, 0, 0, 1, 1], [0, 0, 1, 1, 1,
+                                                                                                                          0, 1, 0, 1], [0, 1, 0, 1, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 1, 0, 0, 0], [0, 1, 0, 1, 1, 0, 0, 0, 0], [0, 0, 0, 0, 0, 1, 0, 1, 0]]
+))
