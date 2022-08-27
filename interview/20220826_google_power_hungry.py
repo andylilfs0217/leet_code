@@ -40,6 +40,7 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 import math
+from turtle import pos
 from typing import List
 
 # TODO
@@ -56,8 +57,27 @@ def solution1(panels: List[int]) -> int:
             positives.append(panel)
     if not negatives and not positives and zeros:
         res = 0
-    else:
-        pass
+    elif negatives and not positives and not zeros:
+        res = math.prod(negatives)
+        if len(negatives) > 1 and res < 0:
+            maxNeg = max(negatives)
+            res //= maxNeg
+    elif not negatives and positives:
+        res = math.prod(positives)
+    elif negatives and not positives and zeros:
+        if len(negatives) > 1:
+            res = math.prod(negatives)
+            if res < 0:
+                res //= max(negatives)
+        else:
+            res = 0
+    elif negatives and positives:
+        res = math.prod(positives)
+        if len(negatives) > 1:
+            res *= math.prod(negatives)
+            if res < 0:
+                res //= max(negatives)
+
     return str(res)
 
 
@@ -72,6 +92,11 @@ cases = (
     ([1], '1'),
     ([-1], '-1'),
     ([-1, 0], '0'),
+    ([-1, 0, -1], '1'),
+    ([-1, 0, 1], '1'),
+    ([0, 1], '1'),
+    ([-1, -2, 1], '2'),
+    ([-1, -2, 1], '2'),
 )
 
 for input, sol in cases:
