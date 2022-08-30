@@ -45,9 +45,6 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 
-import heapq
-
-
 def solution(map):
     m, n = len(map), len(map[0])
     DIRECTIONS = (
@@ -57,42 +54,60 @@ def solution(map):
         (-1, 0),
     )
 
-    def isOutOfBound(i: int, j: int) -> bool:
+    def isOutOfBound(i, j):
         return i < 0 or j < 0 or i >= m or j >= n
 
-    def calHVal(i: int, j: int) -> int:
-        return max(m-1-i, n-1-j)
+    def calHVal(i, j, step):
+        return step+m-i+n-j+1
 
-    def printMatrix():
-        for row in map:
-            printRow = ''
-            for cell in row:
-                printRow += str(cell)
-            print(printRow)
+    def isExit(i, j):
+        return i == m-1 and j == n-1
 
-    # hVal, i, j, breakWallRemaining, step
-    pQueue = []
-    heapq.heappush(pQueue, (calHVal(0, 0), 1, 0, 0, 1))
-    while pQueue:
-        _, step, i, j, breakWallRemain = heapq.heappop(pQueue)
-        # Reach the exit
-        if i == m-1 and j == n-1:
-            return step
-        cell = map[i][j]
-        # In the wall
-        if cell == 1:
-            breakWallRemain -= 1
-        # No more breaking wall
-        if breakWallRemain < 0:
+    visited = set()
+    queue = [(calHVal(0, 0, 1), 0, 0, 1, True)]
+    while queue:
+        _, i, j, step, canBreakWall = queue.pop(0)
+        if (canBreakWall, i, j) in visited:
             continue
-        # Visited
-        if cell == '*':
-            continue
-        # Change the current cell to visited
-        map[i][j] = '*'
-        for dirI, dirJ in DIRECTIONS:
-            newI, newJ = i+dirI, j+dirJ
-            if not isOutOfBound(newI, newJ):
-                heapq.heappush(pQueue, (calHVal(newI, newJ), step+1,
-                                        newI, newJ, breakWallRemain))
-    return
+        visited.add((canBreakWall, i, j))
+        step += 1
+        for di, dj in DIRECTIONS:
+            ni, nj = i+di, j+dj
+            nHVal = calHVal(ni, nj, step)
+            if not isOutOfBound(ni, nj):
+                if isExit(ni, nj):
+                    return step
+                elif not map[ni][nj]:
+                    queue.append((nHVal, ni, nj, step, canBreakWall))
+                elif canBreakWall:
+                    queue.append((nHVal, ni, nj, step, False))
+        queue = sorted(queue)
+
+
+print(solution([[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]) == 7)
+print(
+    solution([[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]) ==
+    11)
+print(
+    solution([[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+              [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+              [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+              [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+              [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]) ==
+    39)
