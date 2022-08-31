@@ -68,7 +68,6 @@ Use verify [file] to test your solution and see how it does. When you are finish
 
 
 from fractions import Fraction
-import numpy as np
 
 
 def solution(m):
@@ -97,6 +96,79 @@ def solution(m):
     To get the result we want, we can simply convert `B[0]` into our desired format.
     """
 
+    def subtractMatrix(a, b):
+        """
+        Subtract matrix a by b
+        """
+        res = []
+        for i in range(len(a)):
+            row = []
+            for j in range(len(a[i])):
+                row.append(a[i][j] - b[i][j])
+            res.append(row)
+        return res
+
+    def detMatrix(matrix):
+        """
+        Calculate the determinant of the matrix
+        """
+
+        return
+
+    def adjMatrix(matrix):
+        """
+        Create adjoint of the matrix
+        """
+        return
+
+    def addMultipleOfRowOfSquareMatrix(matrix, targetRow, sourceRow, k):
+        """
+        add k * sourceRow to targetRow of matrix m
+        """
+        n = len(matrix)
+        rowOperator = createIdentityMatrix(n)
+        rowOperator[targetRow][sourceRow] = k
+        return dotMatrix(rowOperator, matrix)
+
+    def invertMatrix(matrix):
+        """
+        Return the matrix inverse
+        """
+        n = len(matrix)
+        inverse = createIdentityMatrix(n)
+        for col in range(n):
+            diagonalRow = col
+            k = Fraction(1, matrix[diagonalRow][col])
+            matrix = addMultipleOfRowOfSquareMatrix(
+                matrix, diagonalRow, diagonalRow, k)
+            inverse = addMultipleOfRowOfSquareMatrix(
+                inverse, diagonalRow, diagonalRow, k)
+            sourceRow = diagonalRow
+            for targetRow in range(n):
+                if sourceRow != targetRow:
+                    k = -matrix[targetRow][col]
+                    matrix = addMultipleOfRowOfSquareMatrix(
+                        matrix, targetRow, sourceRow, k)
+                    inverse = addMultipleOfRowOfSquareMatrix(
+                        inverse, targetRow, sourceRow, k)
+        return inverse
+
+    def dotMatrix(a, b):
+        """
+        Return the dot product of matrix a and b
+        """
+        am, an, bn = len(a), len(a[0]), len(b[0])
+        res = []
+        for i in range(am):
+            row = []
+            for j in range(bn):
+                num = Fraction(0, 1)
+                for k in range(an):
+                    num += a[i][k] * b[k][j]
+                row.append(num)
+            res.append(row)
+        return res
+
     def transformToFracMatrix(m):
         """
         Transform original matrix into the matrix with fractions.
@@ -109,17 +181,17 @@ def solution(m):
                         m[i][j] = Fraction(cell, total)
         return m
 
-    # def createIdentityMatrix(n):
-    #     """
-    #     Create a n*n identity matrix
-    #     """
-    #     matrix = []
-    #     for i in range(n):
-    #         row = []
-    #         for j in range(n):
-    #             row.append(1 if i == j else 0)
-    #         matrix.append(row)
-    #     return matrix
+    def createIdentityMatrix(n):
+        """
+        Create a n*n identity matrix
+        """
+        matrix = []
+        for i in range(n):
+            row = []
+            for j in range(n):
+                row.append(1 if i == j else 0)
+            matrix.append(row)
+        return matrix
 
     def getMatrixQ(m, tIdxs):
         """
@@ -135,7 +207,7 @@ def solution(m):
                 prob = row[j]
                 rowQ.append(prob)
             matrixQ.append(rowQ)
-        return np.array(matrixQ)
+        return matrixQ
 
     def getMatrixN(t, matrixQ):
         """
@@ -143,12 +215,9 @@ def solution(m):
 
         N = (I_t - Q)^(-1)
         """
-        # matrixIdentity = createIdentityMatrix(t)
-        matrixIdentity = np.identity(t)
-        matrixNInverse = np.subtract(matrixIdentity, matrixQ)
-        matrixNInverse = matrixNInverse.astype('float64')
-        matrixN = np.linalg.inv(matrixNInverse)
-        matrixN = matrixN + Fraction()
+        matrixIdentity = createIdentityMatrix(t)
+        matrixNInverse = subtractMatrix(matrixIdentity, matrixQ)
+        matrixN = invertMatrix(matrixNInverse)
         return matrixN
 
     def getMatrixR(m, tIdxs, aIdxs):
@@ -165,8 +234,6 @@ def solution(m):
                 prob = row[j]
                 rowR.append(prob)
             matrixR.append(rowR)
-        matrixR = np.array(matrixR)
-        matrixR = matrixR.transpose()
         return matrixR
 
     def getMatrixB(matrixN, matrixR):
@@ -175,7 +242,8 @@ def solution(m):
 
         B = NR
         """
-        return
+        matrixB = dotMatrix(matrixN, matrixR)
+        return matrixB
 
     def getRes(matrixB):
         """
@@ -183,7 +251,29 @@ def solution(m):
 
         An array of ints for each terminal state giving the exact probabilities of each terminal state, represented as the numerator for each state, then the denominator for all of them at the end and in simplest form.
         """
-        return
+        row0 = list(matrixB[0])
+        fracs = [Fraction(n).limit_denominator(1000) for n in row0]
+        denominator = getLcm([n.denominator for n in fracs])
+        res = [n.numerator * (denominator // n.denominator)
+               for n in fracs] + [denominator]
+        return res
+
+    def getGcd(a, b):
+        """
+        Return the greatest common divisor of two integers.
+        """
+        while a % b > 0:
+            a, b = b, a % b
+        return b
+
+    def getLcm(nums):
+        """
+        Return the least common multiple of the list of integers.
+        """
+        res = 1
+        for num in nums:
+            res = res * num // getGcd(res, num)
+        return res
 
     # Transform matrix into fraction matrix for easier calculation
     m = transformToFracMatrix(m)
@@ -193,7 +283,9 @@ def solution(m):
     for i, row in enumerate(m):
         (transientStateIdxs if sum(row) else absorbingStateIdxs).append(i)
 
-    m = np.array(m)
+    # Handle special case
+    if 0 in absorbingStateIdxs:
+        return [1, 1]
 
     # Get different matrixes for calculation
     matrixQ = getMatrixQ(m, transientStateIdxs)
@@ -206,7 +298,7 @@ def solution(m):
     return res
 
 
-# print(solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [
-#       0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]) == [7, 6, 8, 21])
+print(solution([[0, 2, 1, 0, 0], [0, 0, 0, 3, 4], [0, 0, 0, 0, 0], [
+      0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]) == [7, 6, 8, 21])
 print(solution([[0, 1, 0, 0, 0, 1], [4, 0, 0, 3, 2, 0], [0, 0, 0, 0, 0, 0], [
       0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0]]) == [0, 3, 2, 9, 14])
