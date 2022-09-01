@@ -48,15 +48,26 @@ Use verify [file] to test your solution and see how it does. When you are finish
 
 
 def solution(l):
+    def listToString(l):
+        return ','.join([str(i) for i in l])
+
     n = len(l)
-    res = 0
+    count = 0
+    multiples = {}
     for i in range(n):
+        first = l[i]
+        row = []
         for j in range(i+1, n):
-            for k in range(j+1, n):
-                x, y, z = l[i], l[j], l[k]
-                if z % y == 0 and y % x == 0:
-                    res += 1
-    return res
+            second = l[j]
+            if second % first == 0:
+                row.append(listToString((second, j)))
+        if len(row) > 0:
+            multiples[listToString((first, i))] = row
+    for i, first in enumerate(l):
+        row = multiples.get(listToString((first, i)), [])
+        for second in row:
+            count += len(multiples.get(second, []))
+    return count
 
 
 print(solution([1, 2, 3, 4, 5, 6]) == 3)
