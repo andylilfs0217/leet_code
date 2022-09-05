@@ -67,22 +67,99 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 
+import time
+
+
 def solution(times, times_limit):
-    # Your code here
-    pass
+    start = time.time()
+    res = solution1(times, times_limit)
+    end = time.time()
+    print("Time used: ", "{:.5f}".format((end-start) * 10**3), "ms")
+    return res
 
 
-print(solution([
-    [0, 2, 2, 2, -1],
-    [9, 0, 2, 2, -1],
-    [9, 3, 0, 2, -1],
-    [9, 3, 2, 0, -1],
-    [9, 3, 2, 2, 0]
-], 1) == [1, 2])
-print(solution([
-    [0, 1, 1, 1, 1],
-    [1, 0, 1, 1, 1],
-    [1, 1, 0, 1, 1],
-    [1, 1, 1, 0, 1],
-    [1, 1, 1, 1, 0]
-], 3) == [0, 1])
+def solution1(times, times_limit):
+    n = len(times)  # Number of stops
+    total_bunnies = n - 2  # Number of total bunnies
+    res = []  # response
+
+    # Check if there is any bunnies
+    if not total_bunnies:
+        return res
+
+    max_time_remain = [float('-inf') for _ in range(n)]
+    max_time_remain[0] = times_limit
+    # (time_remain, curr_idx, max_time_remain, visited_set, collected_bunnies)
+    queue = [(times_limit, 0, max_time_remain, set(), set())]
+    while queue:
+        time_remain, curr_idx, max_time_remain, visited_set, collected_bunnies = queue.pop(
+            0)
+        # Can generate infinite time
+        if curr_idx in visited_set and time_remain > max_time_remain[curr_idx]:
+            res = [i for i in range(total_bunnies)]
+            break
+        # Arrive gateway
+        if curr_idx == n-1 and time_remain >= 0:
+            if len(collected_bunnies) <= len(res) and sorted(collected_bunnies) < res:
+                res = sorted(collected_bunnies)
+        max_time_remain[curr_idx] = max(max_time_remain[curr_idx], time_remain)
+        visited_set.add(curr_idx)
+        if curr_idx in range(1, n-1):
+            collected_bunnies.add(curr_idx-1)
+        # Append next possible steps
+        for new_idx in range(n):
+            new_time_remain = time_remain-times[curr_idx][new_idx]
+            temp = (new_time_remain, new_idx, list(max_time_remain),
+                    set(visited_set), set(collected_bunnies))
+            queue.append(temp)
+        pass
+    return res
+
+
+print(solution([[0, 2, 2, 2, -1],
+                [9, 0, 2, 2, -1],
+                [9, 3, 0, 2, -1],
+                [9, 3, 2, 0, -1],
+                [9, 3, 2, 2, 0]], 1) == [1, 2])
+print(solution([[0, 1, 1, 1, 1],
+                [1, 0, 1, 1, 1],
+                [1, 1, 0, 1, 1],
+                [1, 1, 1, 0, 1],
+                [1, 1, 1, 1, 0]], 3) == [0, 1])
+print(solution([[0, 2, 2, 2, -1],
+                [9, 0, 2, 2, 0],
+                [9, 3, 0, 2, 0],
+                [9, 3, 2, 0, 0],
+                [-1, 3, 2, 2, 0]], 3) == [0, 1, 2])
+print(solution([[1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1, 1, 1]], 1) == [])
+print(solution([[1, 1, 1],
+                [1, 1, 1],
+                [1, 1, 1]], 2) == [0])
+print(solution([[0, 5, 11, 11, 1],
+                [10, 0, 1, 5, 1],
+                [10, 1, 0, 4, 0],
+                [10, 1, 5, 0, 1],
+                [10, 10, 10, 10, 0]], 10) == [0, 1])
+print(solution([[0, 10, 10, 10, 1],
+                [0, 0, 10, 10, 10],
+                [0, 10, 0, 10, 10],
+                [0, 10, 10, 0, 10],
+                [1, 1, 1, 1, 0]], 5) == [0, 1])
+print(solution([[0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0]], 1) == [0, 1, 2])
+print(solution([[2, 2],
+                [2, 2]], 1) == [])
+print(solution([[0, 10, 10, 1, 10],
+                [10, 0, 10, 10, 1],
+                [10, 1, 0, 10, 10],
+                [10, 10, 1, 0, 10],
+                [1, 10, 10, 10, 0]], 6) == [0, 1, 2])
