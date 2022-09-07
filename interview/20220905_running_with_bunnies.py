@@ -76,7 +76,7 @@ def solution(times, times_limit):
     start = time.time()
     res = solution1(times, times_limit)
     end = time.time()
-    # print("Time used: ", "{:.5f}".format((end-start) * 10**3), "ms")
+    print("Time used: ", "{:.5f}".format((end-start) * 10**3), "ms")
     return res
 
 
@@ -125,15 +125,20 @@ def findShortestPaths(edges):
     res = [[0 if i == j else float('inf')for i in range(n)] for j in range(n)]
     res[0][0] = 0
 
-    # TODO: Implement dijkstra algorithm
+    # Implement dijkstra algorithm
     for start_node in range(n):
         distances = res[start_node]
-        node_priority_queue = [(distances[node], node) for node in range(n)]
-        heapq.heapify(node_priority_queue)
+        node_priority_queue = [(distances[start_node], start_node)]
         while node_priority_queue:
             curr_dist, curr_node = heapq.heappop(node_priority_queue)
             for to_node in range(n):
-                alt = distances[curr_node]
+                weight = edges[curr_node][to_node]
+                curr_to_dist, min_dist = curr_dist + weight, distances[to_node]
+                if curr_to_dist < min_dist:
+                    # Update the shortest distance and put it to queue
+                    distances[to_node] = curr_to_dist
+                    heapq.heappush(node_priority_queue,
+                                   (curr_to_dist, to_node))
     return res
 
 
@@ -166,6 +171,8 @@ def solution1(times: List[List], times_limit):
                 new_times[from_node][to_node] = new_weight
         # Find the shortest path from node U to node V
         shortest_paths = findShortestPaths(new_times)
+        for row in shortest_paths:
+            print(row)
         pass
 
     return res
