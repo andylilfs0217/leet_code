@@ -67,17 +67,8 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 
-import heapq
-import time
-from typing import List
-
-
-def solution(times, times_limit):
-    start = time.time()
-    res = solution1(times, times_limit)
-    end = time.time()
-    print("Time used: ", "{:.5f}".format((end-start) * 10**3), "ms")
-    return res
+import itertools
+import copy
 
 
 def bellmanFord(edges, start_node):
@@ -108,41 +99,57 @@ def bellmanFord(edges, start_node):
     return has_negative_loop, min_distances
 
 
-def reweightEdge(weight, from_node_val, to_node_val):
-    """
-    Calculate the new weight for the edge using the formula l(u,v) = w(u,v) + h(u) - h(v)
-    """
-    res = weight + from_node_val - to_node_val
-    return res
-
-
 def findShortestPaths(edges):
     """
-    Find all shortest paths from one node to another node by providing a matrix of edges.
+    Find all shortest paths from one node to another node by providing a matrix of edges. (Floyd's algorithm)
     """
-    # Initialize
     n = len(edges)
-    res = [[0 if i == j else float('inf')for i in range(n)] for j in range(n)]
-    res[0][0] = 0
-
-    # Implement dijkstra algorithm
-    for start_node in range(n):
-        distances = res[start_node]
-        node_priority_queue = [(distances[start_node], start_node)]
-        while node_priority_queue:
-            curr_dist, curr_node = heapq.heappop(node_priority_queue)
-            for to_node in range(n):
-                weight = edges[curr_node][to_node]
-                curr_to_dist, min_dist = curr_dist + weight, distances[to_node]
-                if curr_to_dist < min_dist:
-                    # Update the shortest distance and put it to queue
-                    distances[to_node] = curr_to_dist
-                    heapq.heappush(node_priority_queue,
-                                   (curr_to_dist, to_node))
+    res = copy.deepcopy(edges)
+    for i in range(n):
+        for j in range(n):
+            for k in range(n):
+                if res[j][i] + res[i][k] < res[j][k]:
+                    res[j][k] = res[j][i] + res[i][k]
     return res
 
 
-def solution1(times: List[List], times_limit):
+def findBunnies(shortest_paths, total_bunnies, times_limit):
+    """
+    Find the maximum number of bunnies retrievable.
+    """
+    res = []
+    # Bunny indexes start from 1
+    bunnyIdxs = [i+1 for i in range(total_bunnies)]
+    # Get all permutation from the bunny indexes
+    perms = []
+    for i in range(total_bunnies+1):
+        for num in itertools.permutations(bunnyIdxs, i):
+            perms.append(list(num))
+    # Sort all permutations to make sure smallest index comes first
+    perms.sort()
+    # Go through all permutations to find out the maximum number of bunnies that can be recused
+    for perm in perms:
+        # Walk through the recuse path and calculate the time used
+        time_used, from_node = 0, 0
+        for to_node in perm:
+            time_used += shortest_paths[from_node][to_node]
+            from_node = to_node
+        time_used += shortest_paths[from_node][-1]
+        # If the time used is within the time limit and the number of bunnies recused is larger than the response
+        curr_num_bunnies, max_num_bunnies = len(perm), len(res)
+        if time_used <= times_limit and curr_num_bunnies > max_num_bunnies:
+            res = perm
+            if curr_num_bunnies == total_bunnies:
+                # All bunnies are recused
+                break
+    # Turn all bunny indexes to 0-base
+    res = [bunnyId-1 for bunnyId in res]
+    # Sort the response
+    res.sort()
+    return res
+
+
+def solution(times, times_limit):
     n = len(times)  # Number of stops
     total_bunnies = n - 2  # Number of total bunnies
     res = []  # response
@@ -152,7 +159,7 @@ def solution1(times: List[List], times_limit):
         return res
 
     # Perform Bellman Ford algorithm with an additional node which only contains out-edges to each node.
-    edges_for_bellman = list(times)
+    edges_for_bellman = copy.deepcopy(times)
     edges_for_bellman = [[float('inf')] + row for row in edges_for_bellman]
     edges_for_bellman.insert(0, [0 for _ in range(n+1)])
     has_negative_loop, distances = bellmanFord(edges_for_bellman, 0)
@@ -162,19 +169,11 @@ def solution1(times: List[List], times_limit):
         # Having negative loop(s) means all bunnies can be retrieved before escaping.
         res = [i for i in range(total_bunnies)]
     else:
-        # Reweight all edges to non-negative values
-        new_times = list(times)
-        for from_node, row in enumerate(new_times):
-            for to_node, weight in enumerate(row):
-                new_weight = reweightEdge(
-                    weight, distances[from_node], distances[to_node])
-                new_times[from_node][to_node] = new_weight
         # Find the shortest path from node U to node V
-        shortest_paths = findShortestPaths(new_times)
-        for row in shortest_paths:
-            print(row)
+        shortest_paths = findShortestPaths(times)
+        # Find retrievable bunnies
+        res = findBunnies(shortest_paths, total_bunnies, times_limit)
         pass
-
     return res
 
 
