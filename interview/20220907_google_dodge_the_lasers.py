@@ -18,20 +18,6 @@ floor(5*sqrt(2))
 so the function would return "19".
 
 str_n will be a positive integer between 1 and 10^100, inclusive. Since n can be very large (up to 101 digits!), using just sqrt(2) and a loop won't work. Sometimes, it's easier to take a step back and concentrate not on what you have in front of you, but on what you don't.
-Fortunately, you know something important about the ships trying to shoot you down. Back when you were still Commander Lambdas assistant, she asked you to help program the aiming mechanisms for the starfighters. They undergo rigorous testing procedures, but you were still able to slip in a subtle bug. The software works as a time step simulation: if it is tracking a target that is accelerating away at 45 degrees, the software will consider the targets acceleration to be equal to the square root of 2, adding the calculated result to the targets end velocity at each timestep. However, thanks to your bug, instead of storing the result with proper precision, it will be truncated to an integer before adding the new velocity to your current position.  This means that instead of having your correct position, the targeting software will erringly report your position as sum(i=1..n, floor(i*sqrt(2))) - not far enough off to fail Commander Lambdas testing, but enough that it might just save your life.
-
-If you can quickly calculate the target of the starfighters' laser beams to know how far off they'll be, you can trick them into shooting an asteroid, releasing dust, and concealing the rest of your escape.  Write a function solution(str_n) which, given the string representation of an integer n, returns the sum of (floor(1*sqrt(2)) + floor(2*sqrt(2)) + ... + floor(n*sqrt(2))) as a string. That is, for every number i in the range 1 to n, it adds up all of the integer portions of i*sqrt(2).
-
-For example, if str_n was "5", the solution would be calculated as
-floor(1*sqrt(2)) +
-floor(2*sqrt(2)) +
-floor(3*sqrt(2)) +
-floor(4*sqrt(2)) +
-floor(5*sqrt(2))
-= 1+2+4+5+7 = 19
-so the function would return "19".
-
-str_n will be a positive integer between 1 and 10^100, inclusive. Since n can be very large (up to 101 digits!), using just sqrt(2) and a loop won't work. Sometimes, it's easier to take a step back and concentrate not on what you have in front of you, but on what you don't.
 
 Languages
 =========
@@ -69,11 +55,45 @@ Output:
 Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
 """
 
+import math
+import time
+
+dp = []
+
 
 def solution(s):
-    # Your code here
-    pass
+    start = time.time()
+    res = solution1(s)
+    end = time.time()
+    # print("Time used: ", "{:.5f}".format((end - start) * 10**3), "ms")
+    return res
 
 
-print(solution('77') == 4208)
-print(solution('5') == 19)
+def solution1(s):
+    s = int(s)
+    res = 0
+    if s < len(dp):
+        res = dp[s]
+    else:
+        res = dp[-1] if len(dp) > 0 else 0
+        for i in range(len(dp), s + 1):
+            res += math.floor(i * math.sqrt(2))
+            dp.append(res)
+    return str(res)
+
+
+# print(
+#     solution(
+#         '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+#     ))
+for i in range(1, 100):
+    print(i, solution(str(i)))
+# print(solution('1000000'))
+# print(solution('999999'))
+# print(solution('99999'))
+# print(solution('9999'))
+# print(solution('999'))
+# print(solution('99'))
+# print(solution('9'))
+# print(solution('77') == '4208')
+# print(solution('5') == '19')
