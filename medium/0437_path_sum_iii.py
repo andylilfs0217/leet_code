@@ -41,19 +41,20 @@ class Solution:
 
     def pathSum2(self, root: Optional[TreeNode], targetSum: int) -> int:
 
-        def helper(self, root, target, so_far, cache):
+        ans = 0
+
+        def helper(root, target, so_far, cache):
             if root:
                 complement = so_far + root.val - target
                 if complement in cache:
-                    self.result += cache[complement]
+                    ans += cache[complement]
                 cache.setdefault(so_far + root.val, 0)
                 cache[so_far + root.val] += 1
-                self.helper(root.left, target, so_far + root.val, cache)
-                self.helper(root.right, target, so_far + root.val, cache)
+                helper(root.left, target, so_far + root.val, cache)
+                helper(root.right, target, so_far + root.val, cache)
                 cache[so_far + root.val] -= 1
             return
 
-        ans = 0
         helper(root, targetSum, 0, {0: 1})
         return ans
 
