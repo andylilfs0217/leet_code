@@ -56,32 +56,40 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 from decimal import Decimal, localcontext
+from math import floor
 
 
 def solution(s):
     with localcontext() as ctx:
         ctx.prec = 102
+        n = Decimal(s)
         r = Decimal(2).sqrt()
-        s = Decimal(s)
-        if s < 1:
-            return '0'
-        bnr = int(s * r)
-        new_s = bnr - s
-        ans = int((bnr * (bnr + 1)) // 2 - new_s * (new_s + 1) -
-                  int(solution(new_s)))
+        s = Decimal(2) + r
+
+        def helper(n):
+            if n < 1:
+                return 0
+            bnr = int(n * r)
+            new_n = int(Decimal(bnr) / s)
+            ans = bnr * (bnr + 1) / 2 - helper(new_n) - new_n * (new_n + 1)
+            return ans
+
+        ans = int(helper(n))
         return str(ans)
 
 
 print(
     solution(
         '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-    ))
-print(solution('1000000'))
-print(solution('999999'))
-print(solution('99999'))
-print(solution('9999'))
-print(solution('999'))
-print(solution('99'))
-print(solution('9'))
+    ) ==
+    '70710678118654752440084436210484903928483593768847403658833986899536623923105351942519376716382078638821760123411090095254685423841027253480565451739737157454059823250037671948325191776995310741236436'
+)
+print(solution('1000000') == '707106988293')
+print(solution('999999') == '707105574080')
+print(solution('99999') == '7070947101')
+print(solution('9999') == '70698607')
+print(solution('999') == '705900')
+print(solution('99') == '6951')
+print(solution('9') == '59')
 print(solution('77') == '4208')
 print(solution('5') == '19')
