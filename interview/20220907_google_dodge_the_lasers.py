@@ -55,39 +55,28 @@ Output:
 Use verify [file] to test your solution and see how it does. When you are finished editing your code, use submit [file] to submit your answer. If your solution passes the test cases, it will be removed from your home folder.
 """
 
-import math
-import time
-
-dp = []
+from decimal import Decimal, localcontext
+from math import floor
 
 
 def solution(s):
-    start = time.time()
-    res = solution1(s)
-    end = time.time()
-    # print("Time used: ", "{:.5f}".format((end - start) * 10**3), "ms")
-    return res
+    with localcontext() as ctx:
+        ctx.prec = 102
+        r = Decimal(2).sqrt()
+        s = int(s)
+        if s < 1:
+            return '0'
+        bnr = floor(s * r)
+        new_s = bnr - s
+        ans = (bnr *
+               (bnr + 1)) // 2 - new_s * (new_s + 1) - int(solution(new_s))
+        return str(ans)
 
 
-def solution1(s):
-    s = int(s)
-    res = 0
-    if s < len(dp):
-        res = dp[s]
-    else:
-        res = dp[-1] if len(dp) > 0 else 0
-        for i in range(len(dp), s + 1):
-            res += math.floor(i * math.sqrt(2))
-            dp.append(res)
-    return str(res)
-
-
-# print(
-#     solution(
-#         '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-#     ))
-for i in range(1, 100):
-    print(i, solution(str(i)))
+print(
+    solution(
+        '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+    ))
 # print(solution('1000000'))
 # print(solution('999999'))
 # print(solution('99999'))
@@ -96,4 +85,4 @@ for i in range(1, 100):
 # print(solution('99'))
 # print(solution('9'))
 # print(solution('77') == '4208')
-# print(solution('5') == '19')
+print(solution('5') == '19')
