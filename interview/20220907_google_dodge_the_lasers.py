@@ -56,20 +56,19 @@ Use verify [file] to test your solution and see how it does. When you are finish
 """
 
 from decimal import Decimal, localcontext
-from math import floor
 
 
 def solution(s):
     with localcontext() as ctx:
         ctx.prec = 102
         r = Decimal(2).sqrt()
-        s = int(s)
+        s = Decimal(s)
         if s < 1:
             return '0'
-        bnr = floor(s * r)
+        bnr = int(s * r)
         new_s = bnr - s
-        ans = (bnr *
-               (bnr + 1)) // 2 - new_s * (new_s + 1) - int(solution(new_s))
+        ans = int((bnr * (bnr + 1)) // 2 - new_s * (new_s + 1) -
+                  int(solution(new_s)))
         return str(ans)
 
 
@@ -77,12 +76,12 @@ print(
     solution(
         '10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
     ))
-# print(solution('1000000'))
-# print(solution('999999'))
-# print(solution('99999'))
-# print(solution('9999'))
-# print(solution('999'))
-# print(solution('99'))
-# print(solution('9'))
-# print(solution('77') == '4208')
+print(solution('1000000'))
+print(solution('999999'))
+print(solution('99999'))
+print(solution('9999'))
+print(solution('999'))
+print(solution('99'))
+print(solution('9'))
+print(solution('77') == '4208')
 print(solution('5') == '19')
