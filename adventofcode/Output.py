@@ -1,6 +1,6 @@
 import collections
 import os
-from q03 import Solution
+from y2021.q01.p2 import Solution
 
 
 def Verify() -> collections.defaultdict:
@@ -20,7 +20,6 @@ def Output() -> None:
     solutions = Verify()
     for k, v in sorted(solutions.items()):
         print(f'{k}: {v}')
-    pass
 
 
 if __name__ == '__main__':
