@@ -1,6 +1,6 @@
 import collections
 import os
-from y2022.q05.p2 import Solution
+from y2022.q06.p2 import Solution
 
 
 def Verify() -> collections.defaultdict:
