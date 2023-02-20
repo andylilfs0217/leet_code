@@ -4,8 +4,9 @@ from collections import Counter
 class Solution:
 
     def minWindow(self, s: str, t: str) -> str:
-        return self.minWindow1(s, t)
-        # return self.minWindow2(s, t)
+        # return self.minWindow1(s, t)
+        return self.minWindow2(s, t)
+
     def minWindow1(self, s: str, t: str) -> str:
         t_counter = Counter(t)
         l, r, n = 0, 1, len(s)
@@ -28,6 +29,31 @@ class Solution:
                 window_counter[s[r]] += 1
                 r += 1
             window = s[l:r]
+        return ans
+
+    def minWindow2(self, s: str, t: str) -> str:
+        t_counter = Counter(t)
+        need = len(t)
+        have = 0
+        l, r, n = 0, 0, len(s)
+        ans = ''
+        window_counter = Counter()
+        while l < n and r <= n:
+            if have < need and r < n:
+                r += 1
+                new_word = s[r - 1]
+                if window_counter[new_word] < t_counter[new_word]:
+                    have += 1
+                window_counter[new_word] += 1
+            else:
+                removed_word = s[l]
+                window_counter[removed_word] -= 1
+                if window_counter[removed_word] < t_counter[removed_word]:
+                    have -= 1
+                l += 1
+            window = s[l:r]
+            if have == need and (ans == '' or r - l < len(ans)):
+                ans = window
         return ans
 
 
